@@ -1,0 +1,470 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ template.title }} - TemplateHub{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Status Notice for Non-Published Templates -->
+    {% if template.status != 'published' and user == template.author %}
+        <div class="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div class="flex items-center">
+                <i class="fas fa-info-circle text-yellow-600 mr-3"></i>
+                <div>
+                    <h3 class="text-sm font-medium text-yellow-800">
+                        {% if template.status == 'pending' %}
+                            Template Under Review
+                        {% elif template.status == 'draft' %}
+                            Draft Template
+                        {% endif %}
+                    </h3>
+                    <p class="text-sm text-yellow-700 mt-1">
+                        {% if template.status == 'pending' %}
+                            Your template is currently being reviewed by our team. You'll be notified once it's approved and published.
+                        {% elif template.status == 'draft' %}
+                            This template is saved as a draft. Complete and submit it for review to make it available to others.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+            <!-- Template Header -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+                {% if template.preview_image %}
+                    <img src="{{ template.preview_image.url }}" alt="{{ template.title }}" class="w-full h-64 object-cover">
+                {% else %}
+                    <div class="w-full h-64 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                        <i class="fas fa-code text-primary-600 text-6xl"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="p-6">
+                    <!-- Category and Status -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-primary-100 text-primary-800 text-sm font-medium px-3 py-1 rounded">
+                                {{ template.category.name }}
+                            </span>
+                            <span class="bg-{{ template.difficulty }}-100 text-{{ template.difficulty }}-800 text-sm font-medium px-3 py-1 rounded">
+                                {{ template.get_difficulty_display }}
+                            </span>
+                            {% if template.status == 'pending' %}
+                                <span class="bg-yellow-100 text-yellow-800 text-sm font-medium px-3 py-1 rounded">
+                                    <i class="fas fa-clock mr-1"></i>Pending Review
+                                </span>
+                            {% elif template.status == 'draft' %}
+                                <span class="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1 rounded">
+                                    <i class="fas fa-edit mr-1"></i>Draft
+                                </span>
+                            {% elif template.is_featured %}
+                                <span class="bg-yellow-100 text-yellow-800 text-sm font-medium px-3 py-1 rounded">
+                                    <i class="fas fa-star mr-1"></i>Featured
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Rating -->
+                        <div class="flex items-center">
+                            <div class="flex items-center text-yellow-400 mr-2">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= template.average_rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="text-gray-600 text-sm">({{ template.review_count }} reviews)</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Title and Description -->
+                    <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ template.title }}</h1>
+                    <p class="text-gray-600 text-lg mb-6">{{ template.short_description }}</p>
+                    
+                    <!-- Author and Stats -->
+                    <div class="flex items-center justify-between border-t border-gray-200 pt-4">
+                        <div class="flex items-center">
+                            <img class="h-10 w-10 rounded-full mr-3" 
+                                 src="https://ui-avatars.com/api/?name={{ template.author.username }}&background=3b82f6&color=fff&size=40" 
+                                 alt="{{ template.author.username }}">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ template.author.get_full_name|default:template.author.username }}</p>
+                                <p class="text-sm text-gray-500">@{{ template.author.username }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4 text-sm text-gray-500">
+                            <div class="flex items-center">
+                                <i class="fas fa-download mr-1"></i>
+                                {{ template.download_count }} downloads
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-eye mr-1"></i>
+                                {{ template.views.count }} views
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-calendar mr-1"></i>
+                                {{ template.created_at|date:"M d, Y" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Description</h2>
+                <div class="prose max-w-none">
+                    {{ template.description|linebreaks }}
+                </div>
+            </div>
+            
+            <!-- Tags -->
+            {% if template.tags.all %}
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Tags</h2>
+                    <div class="flex flex-wrap gap-2">
+                        {% for tag in template.tags.all %}
+                            <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Reviews Section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">Reviews ({{ template.review_count }})</h2>
+                    {% if user.is_authenticated %}
+                        {% if not user_has_reviewed %}
+                            <a href="{% url 'reviews:add_review' template.pk %}"
+                               class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Write Review
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'users:login' %}?next={{ request.path }}"
+                           class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login to Review
+                        </a>
+                    {% endif %}
+                </div>
+
+                {% if template.reviews.all %}
+                    <div class="space-y-6">
+                        {% for review in template.reviews.all|slice:":5" %}
+                            <div class="border-b border-gray-200 pb-6 last:border-b-0">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="flex items-center">
+                                        <img class="h-10 w-10 rounded-full mr-3"
+                                             src="https://ui-avatars.com/api/?name={{ review.user.username }}&background=3b82f6&color=fff&size=40"
+                                             alt="{{ review.user.username }}">
+                                        <div>
+                                            <span class="font-medium text-gray-900">{{ review.user.get_full_name|default:review.user.username }}</span>
+                                            <div class="flex items-center text-yellow-400 mt-1">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= review.rating %}
+                                                        <i class="fas fa-star text-sm"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star text-sm"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <span class="text-gray-500 text-sm ml-2">{{ review.created_at|date:"M d, Y" }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {% if user == review.user %}
+                                        <div class="flex items-center space-x-2">
+                                            <a href="{% url 'reviews:edit_review' review.pk %}"
+                                               class="text-gray-500 hover:text-primary-600 text-sm">
+                                                <i class="fas fa-edit mr-1"></i>Edit
+                                            </a>
+                                            <a href="{% url 'reviews:delete_review' review.pk %}"
+                                               class="text-gray-500 hover:text-red-600 text-sm">
+                                                <i class="fas fa-trash mr-1"></i>Delete
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <h4 class="font-medium text-gray-900 mb-2">{{ review.title }}</h4>
+                                <p class="text-gray-600 mb-3">{{ review.comment }}</p>
+
+                                <!-- Helpful votes -->
+                                <div class="flex items-center space-x-4 text-sm">
+                                    {% if user.is_authenticated and user != review.user %}
+                                        <button onclick="toggleHelpful({{ review.pk }})"
+                                                class="flex items-center text-gray-500 hover:text-green-600 transition-colors">
+                                            <i class="fas fa-thumbs-up mr-1"></i>
+                                            <span id="helpful-count-{{ review.pk }}">{{ review.helpful_votes.count }}</span>
+                                            Helpful
+                                        </button>
+                                    {% else %}
+                                        <span class="flex items-center text-gray-500">
+                                            <i class="fas fa-thumbs-up mr-1"></i>
+                                            {{ review.helpful_votes.count }} Helpful
+                                        </span>
+                                    {% endif %}
+
+                                    {% if review.is_verified_purchase %}
+                                        <span class="flex items-center text-green-600">
+                                            <i class="fas fa-check-circle mr-1"></i>
+                                            Verified Download
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        {% if template.reviews.count > 5 %}
+                            <div class="text-center pt-4">
+                                <button class="text-primary-600 hover:text-primary-700 font-medium">
+                                    View All {{ template.review_count }} Reviews
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-star text-gray-400 text-4xl mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No reviews yet</h3>
+                        <p class="text-gray-600 mb-4">Be the first to review this template!</p>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'reviews:add_review' template.pk %}"
+                               class="bg-primary-600 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-700 transition-colors">
+                                Write First Review
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <!-- Download Card -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="text-center">
+                    {% if template.is_free %}
+                        <div class="text-3xl font-bold text-green-600 mb-2">Free</div>
+                    {% else %}
+                        <div class="text-3xl font-bold text-gray-900 mb-2">${{ template.price }}</div>
+                    {% endif %}
+                    
+                    {% if template.status == 'published' %}
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'templates:download_template' template.pk %}"
+                               class="w-full bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors mb-3 block text-center">
+                                <i class="fas fa-download mr-2"></i>Download Template
+                            </a>
+                        {% else %}
+                            <a href="{% url 'users:login' %}?next={{ request.path }}"
+                               class="w-full bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors mb-3 block text-center">
+                                <i class="fas fa-sign-in-alt mr-2"></i>Login to Download
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <div class="w-full bg-gray-300 text-gray-600 px-6 py-3 rounded-lg font-semibold mb-3 block text-center cursor-not-allowed">
+                            <i class="fas fa-clock mr-2"></i>
+                            {% if template.status == 'pending' %}
+                                Pending Review
+                            {% elif template.status == 'draft' %}
+                                Draft - Not Published
+                            {% else %}
+                                Not Available
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Action Buttons Row -->
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        {% if template.demo_url %}
+                            <a href="{{ template.demo_url }}" target="_blank"
+                               class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors text-center">
+                                <i class="fas fa-external-link-alt mr-1"></i>Demo
+                            </a>
+                        {% endif %}
+
+                        {% if user.is_authenticated %}
+                            <button onclick="toggleFavorite({{ template.pk }})"
+                                    id="favorite-btn"
+                                    class="{% if is_favorited %}bg-red-100 text-red-600 hover:bg-red-200{% else %}bg-gray-200 text-gray-600 hover:bg-gray-300{% endif %} px-4 py-2 rounded-lg font-medium transition-colors">
+                                <i class="{% if is_favorited %}fas{% else %}far{% endif %} fa-heart mr-1" id="favorite-icon"></i>
+                                <span id="favorite-text">{% if is_favorited %}Favorited{% else %}Favorite{% endif %}</span>
+                            </button>
+                        {% else %}
+                            <a href="{% url 'users:login' %}?next={{ request.path }}"
+                               class="bg-gray-200 text-gray-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors text-center">
+                                <i class="far fa-heart mr-1"></i>Favorite
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Share Buttons -->
+                    <div class="border-t border-gray-200 pt-3">
+                        <p class="text-sm font-medium text-gray-700 mb-2">Share this template:</p>
+                        <div class="flex space-x-2">
+                            <button onclick="shareTemplate('twitter')"
+                                    class="bg-blue-400 text-white p-2 rounded hover:bg-blue-500 transition-colors">
+                                <i class="fab fa-twitter"></i>
+                            </button>
+                            <button onclick="shareTemplate('facebook')"
+                                    class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition-colors">
+                                <i class="fab fa-facebook-f"></i>
+                            </button>
+                            <button onclick="shareTemplate('linkedin')"
+                                    class="bg-blue-700 text-white p-2 rounded hover:bg-blue-800 transition-colors">
+                                <i class="fab fa-linkedin-in"></i>
+                            </button>
+                            <button onclick="copyToClipboard()"
+                                    class="bg-gray-600 text-white p-2 rounded hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-link"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Template Info -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Template Information</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Version</span>
+                        <span class="font-medium">{{ template.version }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">File Size</span>
+                        <span class="font-medium">{{ template.get_file_size_display }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Downloads</span>
+                        <span class="font-medium">{{ template.download_count }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Last Updated</span>
+                        <span class="font-medium">{{ template.updated_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Related Templates -->
+            {% if related_templates %}
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Related Templates</h3>
+                    <div class="space-y-4">
+                        {% for related in related_templates %}
+                            <div class="flex items-center space-x-3">
+                                {% if related.preview_image %}
+                                    <img src="{{ related.preview_image.url }}" alt="{{ related.title }}" class="w-12 h-12 object-cover rounded">
+                                {% else %}
+                                    <div class="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-200 rounded flex items-center justify-center">
+                                        <i class="fas fa-code text-primary-600"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="flex-1 min-w-0">
+                                    <a href="{{ related.get_absolute_url }}" class="text-sm font-medium text-gray-900 hover:text-primary-600 block truncate">
+                                        {{ related.title }}
+                                    </a>
+                                    <p class="text-xs text-gray-500">{{ related.download_count }} downloads</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleHelpful(reviewId) {
+    fetch(`/reviews/helpful/${reviewId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById(`helpful-count-${reviewId}`).textContent = data.helpful_count;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function toggleFavorite(templateId) {
+    fetch(`/favorite/${templateId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        const btn = document.getElementById('favorite-btn');
+        const icon = document.getElementById('favorite-icon');
+        const text = document.getElementById('favorite-text');
+
+        if (data.is_favorited) {
+            btn.className = 'bg-red-100 text-red-600 hover:bg-red-200 px-4 py-2 rounded-lg font-medium transition-colors';
+            icon.className = 'fas fa-heart mr-1';
+            text.textContent = 'Favorited';
+        } else {
+            btn.className = 'bg-gray-200 text-gray-600 hover:bg-gray-300 px-4 py-2 rounded-lg font-medium transition-colors';
+            icon.className = 'far fa-heart mr-1';
+            text.textContent = 'Favorite';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function shareTemplate(platform) {
+    const url = window.location.href;
+    const title = document.title;
+
+    let shareUrl = '';
+    switch(platform) {
+        case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+            break;
+        case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+            break;
+        case 'linkedin':
+            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+            break;
+    }
+
+    if (shareUrl) {
+        window.open(shareUrl, '_blank', 'width=600,height=400');
+    }
+}
+
+function copyToClipboard() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        // Show a temporary notification
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        btn.classList.add('bg-green-600');
+
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('bg-green-600');
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

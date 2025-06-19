@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Templates - TemplateHub{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">Browse Templates</h1>
+        <p class="text-gray-600">Discover high-quality code templates for your next project</p>
+    </div>
+    
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Search Query -->
+            <div>
+                <label for="{{ form.q.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Search
+                </label>
+                {{ form.q }}
+            </div>
+            
+            <!-- Category Filter -->
+            <div>
+                <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Category
+                </label>
+                {{ form.category }}
+            </div>
+            
+            <!-- Difficulty Filter -->
+            <div>
+                <label for="{{ form.difficulty.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Difficulty
+                </label>
+                {{ form.difficulty }}
+            </div>
+            
+            <!-- Price Filter -->
+            <div>
+                <label for="{{ form.is_free.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Price
+                </label>
+                {{ form.is_free }}
+            </div>
+            
+            <!-- Search Button -->
+            <div class="md:col-span-4 flex justify-end">
+                <button type="submit" class="bg-primary-600 text-white px-6 py-2 rounded-md font-medium hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-search mr-2"></i>Search
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Results -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between">
+            <p class="text-gray-600">
+                {% if page_obj.paginator.count %}
+                    Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} templates
+                {% else %}
+                    No templates found
+                {% endif %}
+            </p>
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'templates:template_upload' %}" class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Upload Template
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Template Grid -->
+    {% if templates %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            {% for template in templates %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <!-- Preview Image -->
+                    {% if template.preview_image %}
+                        <img src="{{ template.preview_image.url }}" alt="{{ template.title }}" class="w-full h-48 object-cover">
+                    {% else %}
+                        <div class="w-full h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                            <i class="fas fa-code text-primary-600 text-4xl"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Template Info -->
+                    <div class="p-4">
+                        <!-- Category and Rating -->
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                {{ template.category.name }}
+                            </span>
+                            <div class="flex items-center text-yellow-400">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= template.average_rating %}
+                                        <i class="fas fa-star text-xs"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-xs"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="text-gray-600 text-xs ml-1">({{ template.review_count }})</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Title -->
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{{ template.title }}</h3>
+                        
+                        <!-- Description -->
+                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ template.short_description }}</p>
+                        
+                        <!-- Author and Stats -->
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                            <div class="flex items-center">
+                                <img class="h-6 w-6 rounded-full mr-2" 
+                                     src="https://ui-avatars.com/api/?name={{ template.author.username }}&background=3b82f6&color=fff&size=24" 
+                                     alt="{{ template.author.username }}">
+                                <span>{{ template.author.username }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-download mr-1"></i>
+                                {{ template.download_count }}
+                            </div>
+                        </div>
+                        
+                        <!-- Tags -->
+                        {% if template.tags.all %}
+                            <div class="flex flex-wrap gap-1 mb-3">
+                                {% for tag in template.tags.all|slice:":3" %}
+                                    <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{{ tag.name }}</span>
+                                {% endfor %}
+                                {% if template.tags.count > 3 %}
+                                    <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">+{{ template.tags.count|add:"-3" }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Price and Actions -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                {% if template.is_free %}
+                                    <span class="text-green-600 font-semibold">Free</span>
+                                {% else %}
+                                    <span class="text-gray-900 font-semibold">${{ template.price }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="addToCompare({{ template.pk }}, '{{ template.title|escapejs }}')"
+                                        class="bg-gray-200 text-gray-700 px-2 py-1.5 rounded text-xs font-medium hover:bg-gray-300 transition-colors"
+                                        title="Add to compare">
+                                    <i class="fas fa-balance-scale"></i>
+                                </button>
+                                <a href="{{ template.get_absolute_url }}"
+                                   class="bg-primary-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-primary-700 transition-colors">
+                                    View
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div class="flex items-center justify-center">
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" 
+                           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="relative inline-flex items-center px-4 py-2 border border-primary-500 bg-primary-50 text-sm font-medium text-primary-600">
+                                {{ num }}
+                            </span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}" 
+                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                {{ num }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" 
+                           class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-12">
+            <i class="fas fa-search text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No templates found</h3>
+            <p class="text-gray-600 mb-6">Try adjusting your search criteria or browse all templates</p>
+            <a href="{% url 'templates:template_list' %}" class="bg-primary-600 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-700 transition-colors">
+                View All Templates
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Floating Compare Bar -->
+<div id="compare-bar" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg transform translate-y-full transition-transform duration-300 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-balance-scale text-primary-600 mr-2"></i>
+                <span class="font-medium text-gray-900">Compare Templates</span>
+                <span id="compare-count" class="ml-2 bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-sm">0</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div id="compare-templates" class="flex space-x-2"></div>
+                <button onclick="clearComparison()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+                <a href="#" id="compare-link" class="bg-primary-600 text-white px-4 py-2 rounded-md font-medium hover:bg-primary-700 transition-colors">
+                    Compare
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let compareList = JSON.parse(localStorage.getItem('compareList') || '[]');
+
+function addToCompare(templateId, title) {
+    if (compareList.find(t => t.id === templateId)) {
+        alert('Template already added to comparison');
+        return;
+    }
+
+    if (compareList.length >= 4) {
+        alert('Maximum 4 templates can be compared at once');
+        return;
+    }
+
+    compareList.push({ id: templateId, title: title });
+    localStorage.setItem('compareList', JSON.stringify(compareList));
+    updateCompareBar();
+}
+
+function removeFromCompare(templateId) {
+    compareList = compareList.filter(t => t.id !== templateId);
+    localStorage.setItem('compareList', JSON.stringify(compareList));
+    updateCompareBar();
+}
+
+function clearComparison() {
+    compareList = [];
+    localStorage.setItem('compareList', JSON.stringify(compareList));
+    updateCompareBar();
+}
+
+function updateCompareBar() {
+    const compareBar = document.getElementById('compare-bar');
+    const compareCount = document.getElementById('compare-count');
+    const compareTemplates = document.getElementById('compare-templates');
+    const compareLink = document.getElementById('compare-link');
+
+    compareCount.textContent = compareList.length;
+
+    if (compareList.length > 0) {
+        compareBar.classList.remove('translate-y-full');
+
+        compareTemplates.innerHTML = '';
+        compareList.forEach(template => {
+            const templateTag = document.createElement('span');
+            templateTag.className = 'bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm flex items-center';
+            templateTag.innerHTML = `
+                ${template.title.length > 20 ? template.title.substring(0, 20) + '...' : template.title}
+                <button onclick="removeFromCompare(${template.id})" class="ml-1 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            `;
+            compareTemplates.appendChild(templateTag);
+        });
+
+        const params = compareList.map(t => `templates=${t.id}`).join('&');
+        compareLink.href = `/compare/?${params}`;
+    } else {
+        compareBar.classList.add('translate-y-full');
+    }
+}
+
+// Initialize compare bar
+updateCompareBar();
+</script>
+
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}

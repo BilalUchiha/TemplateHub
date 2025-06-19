@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TemplateHub - Digital Code Template Marketplace{% endblock %}</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <!-- Logo -->
+                    <a href="{% url 'templates:home' %}" class="flex items-center">
+                        <i class="fas fa-code text-primary-600 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">TemplateHub</span>
+                    </a>
+
+                    <!-- Main Navigation -->
+                    <div class="hidden md:ml-10 md:flex md:space-x-8">
+                        <a href="{% url 'templates:home' %}" class="{% if request.resolver_match.url_name == 'home' %}text-primary-600{% else %}text-gray-500 hover:text-primary-600{% endif %} px-3 py-2 text-sm font-medium transition-colors">Home</a>
+                        <a href="{% url 'templates:template_list' %}" class="{% if request.resolver_match.url_name == 'template_list' %}text-primary-600{% else %}text-gray-500 hover:text-primary-600{% endif %} px-3 py-2 text-sm font-medium transition-colors">Browse</a>
+                        <a href="{% url 'templates:trending_templates' %}" class="{% if request.resolver_match.url_name == 'trending_templates' %}text-primary-600{% else %}text-gray-500 hover:text-primary-600{% endif %} px-3 py-2 text-sm font-medium transition-colors">Trending</a>
+                        <a href="{% url 'templates:recent_templates' %}" class="{% if request.resolver_match.url_name == 'recent_templates' %}text-primary-600{% else %}text-gray-500 hover:text-primary-600{% endif %} px-3 py-2 text-sm font-medium transition-colors">Recent</a>
+                        <div class="relative group">
+                            <button class="text-gray-500 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors flex items-center">
+                                Categories
+                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            <!-- Dropdown Menu -->
+                            <div class="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="py-2">
+                                    <a href="{% url 'templates:template_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Templates</a>
+                                    <div class="border-t border-gray-100 my-1"></div>
+                                    <a href="/category/html-templates/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fab fa-html5 mr-2 text-orange-500"></i>HTML Templates
+                                    </a>
+                                    <a href="/category/react-components/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fab fa-react mr-2 text-blue-500"></i>React Components
+                                    </a>
+                                    <a href="/category/vuejs-templates/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fab fa-vuejs mr-2 text-green-500"></i>Vue.js Templates
+                                    </a>
+                                    <a href="/category/django-apps/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fab fa-python mr-2 text-blue-600"></i>Django Apps
+                                    </a>
+                                    <a href="/category/laravel-templates/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fab fa-laravel mr-2 text-red-500"></i>Laravel Templates
+                                    </a>
+                                    <a href="/category/angular-components/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fab fa-angular mr-2 text-red-600"></i>Angular Components
+                                    </a>
+                                    <div class="border-t border-gray-100 my-1"></div>
+                                    <a href="{% url 'templates:compare_templates' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-balance-scale mr-2 text-purple-600"></i>Compare Templates
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="hidden md:flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end">
+                    <div class="max-w-lg w-full lg:max-w-xs">
+                        <form action="{% url 'templates:template_list' %}" method="GET" class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" name="q" placeholder="Search templates..." value="{{ request.GET.q }}"
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                        </form>
+                    </div>
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'templates:template_upload' %}" class="hidden md:flex bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors">
+                            <i class="fas fa-upload mr-2"></i>Upload
+                        </a>
+                        <div class="relative group">
+                            <button type="button" class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name={{ user.username }}&background=3b82f6&color=fff" alt="{{ user.username }}">
+                            </button>
+                            <!-- User Dropdown -->
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="py-2">
+                                    <div class="px-4 py-2 border-b border-gray-100">
+                                        <p class="text-sm font-medium text-gray-900">{{ user.get_full_name|default:user.username }}</p>
+                                        <p class="text-xs text-gray-500">{{ user.email }}</p>
+                                    </div>
+                                    <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-user mr-2"></i>My Profile
+                                    </a>
+                                    <a href="{% url 'templates:my_templates' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-code mr-2"></i>My Templates
+                                    </a>
+                                    <a href="{% url 'templates:user_favorites' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-heart mr-2"></i>My Favorites
+                                    </a>
+                                    <a href="{% url 'templates:template_upload' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 md:hidden">
+                                        <i class="fas fa-upload mr-2"></i>Upload Template
+                                    </a>
+                                    {% if user.is_staff or user.is_superuser %}
+                                        <div class="border-t border-gray-100 my-1"></div>
+                                        <a href="{% url 'templates:admin_dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            <i class="fas fa-tachometer-alt mr-2"></i>Admin Dashboard
+                                        </a>
+                                        <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            <i class="fas fa-cog mr-2"></i>Django Admin
+                                        </a>
+                                    {% endif %}
+                                    <form method="post" action="{% url 'users:logout' %}" class="block">
+                                        {% csrf_token %}
+                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'users:login' %}" class="text-gray-500 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">Login</a>
+                        <a href="{% url 'users:register' %}" class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors">Sign Up</a>
+                    {% endif %}
+
+                    <!-- Mobile menu button -->
+                    <button type="button" class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 border-t border-gray-200">
+                <!-- Mobile Search -->
+                <div class="px-3 py-2">
+                    <form action="{% url 'templates:template_list' %}" method="GET" class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text" name="q" placeholder="Search templates..." value="{{ request.GET.q }}"
+                               class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                    </form>
+                </div>
+
+                <a href="{% url 'templates:home' %}" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-100 rounded-md">Home</a>
+                <a href="{% url 'templates:template_list' %}" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-100 rounded-md">Browse Templates</a>
+
+                <!-- Mobile Categories -->
+                <div class="px-3 py-2">
+                    <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Categories</p>
+                    <div class="mt-2 space-y-1">
+                        <a href="/category/html-templates/" class="block px-3 py-1 text-sm text-gray-700 hover:text-primary-600">HTML Templates</a>
+                        <a href="/category/react-components/" class="block px-3 py-1 text-sm text-gray-700 hover:text-primary-600">React Components</a>
+                        <a href="/category/vuejs-templates/" class="block px-3 py-1 text-sm text-gray-700 hover:text-primary-600">Vue.js Templates</a>
+                        <a href="/category/django-apps/" class="block px-3 py-1 text-sm text-gray-700 hover:text-primary-600">Django Apps</a>
+                    </div>
+                </div>
+
+                {% if user.is_authenticated %}
+                    <div class="border-t border-gray-200 pt-3">
+                        <a href="{% url 'users:profile' %}" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-100 rounded-md">My Profile</a>
+                        <a href="{% url 'templates:template_upload' %}" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-100 rounded-md">Upload Template</a>
+                        {% if user.is_staff or user.is_superuser %}
+                            <a href="{% url 'templates:admin_dashboard' %}" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-100 rounded-md">Admin Dashboard</a>
+                        {% endif %}
+                        <form method="post" action="{% url 'users:logout' %}" class="block">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-100 rounded-md">Sign Out</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} bg-{{ message.tags }}-100 border border-{{ message.tags }}-400 text-{{ message.tags }}-700 px-4 py-3 rounded mb-4">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-20">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center">
+                        <i class="fas fa-code text-primary-600 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">TemplateHub</span>
+                    </div>
+                    <p class="mt-4 text-gray-600">
+                        Your premier destination for high-quality digital code templates. 
+                        Find, share, and download templates for all your development needs.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 tracking-wider uppercase">Categories</h3>
+                    <ul class="mt-4 space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-primary-600">HTML Templates</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary-600">React Components</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary-600">Vue.js Templates</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary-600">Django Apps</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 tracking-wider uppercase">Support</h3>
+                    <ul class="mt-4 space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-primary-600">Help Center</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary-600">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary-600">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-primary-600">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-8 border-t border-gray-200 pt-8">
+                <p class="text-center text-gray-600">&copy; 2025 TemplateHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileButton = event.target.closest('button[onclick="toggleMobileMenu()"]');
+
+            if (!mobileButton && !mobileMenu.contains(event.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

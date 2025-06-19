@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Review - {{ template.title }} - TemplateHub{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'templates:home' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
+                    <i class="fas fa-home mr-2"></i>Home
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                    <a href="{{ template.get_absolute_url }}" class="text-sm font-medium text-gray-700 hover:text-primary-600">{{ template.title }}</a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                    <span class="text-sm font-medium text-gray-500">Add Review</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="bg-white rounded-lg shadow-md">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-900">Add Your Review</h2>
+            <p class="text-gray-600 mt-1">Share your experience with <strong>{{ template.title }}</strong></p>
+        </div>
+        
+        <!-- Template Info -->
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <div class="flex items-center">
+                {% if template.preview_image %}
+                    <img src="{{ template.preview_image.url }}" alt="{{ template.title }}" class="w-16 h-16 object-cover rounded-lg mr-4">
+                {% else %}
+                    <div class="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-code text-primary-600 text-xl"></i>
+                    </div>
+                {% endif %}
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">{{ template.title }}</h3>
+                    <p class="text-gray-600">by {{ template.author.get_full_name|default:template.author.username }}</p>
+                    <div class="flex items-center mt-1">
+                        <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2 py-1 rounded mr-2">
+                            {{ template.category.name }}
+                        </span>
+                        <span class="text-gray-500 text-sm">{{ template.download_count }} downloads</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Review Form -->
+        <form method="post" class="p-6">
+            {% csrf_token %}
+            
+            <!-- Rating -->
+            <div class="mb-6">
+                <label for="{{ form.rating.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Rating *
+                </label>
+                {{ form.rating }}
+                {% if form.rating.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.rating.errors.0 }}
+                    </div>
+                {% endif %}
+                <p class="mt-1 text-sm text-gray-500">{{ form.rating.help_text }}</p>
+            </div>
+            
+            <!-- Title -->
+            <div class="mb-6">
+                <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Review Title *
+                </label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.title.errors.0 }}
+                    </div>
+                {% endif %}
+                <p class="mt-1 text-sm text-gray-500">{{ form.title.help_text }}</p>
+            </div>
+            
+            <!-- Comment -->
+            <div class="mb-6">
+                <label for="{{ form.comment.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Your Review *
+                </label>
+                {{ form.comment }}
+                {% if form.comment.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.comment.errors.0 }}
+                    </div>
+                {% endif %}
+                <p class="mt-1 text-sm text-gray-500">{{ form.comment.help_text }}</p>
+            </div>
+            
+            <!-- Guidelines -->
+            <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 class="text-sm font-medium text-blue-900 mb-2">Review Guidelines</h4>
+                <ul class="text-sm text-blue-800 space-y-1">
+                    <li>• Be honest and constructive in your feedback</li>
+                    <li>• Focus on the template's quality, usability, and documentation</li>
+                    <li>• Mention specific features you liked or disliked</li>
+                    <li>• Keep your review respectful and professional</li>
+                </ul>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <a href="{{ template.get_absolute_url }}" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-md font-medium hover:bg-gray-400 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-primary-600 text-white px-6 py-2 rounded-md font-medium hover:bg-primary-700 transition-colors">
+                    Submit Review
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

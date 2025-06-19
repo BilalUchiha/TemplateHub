@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Template - TemplateHub{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-lg shadow-md">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-900">Upload New Template</h2>
+            <p class="text-gray-600 mt-1">Share your code template with the community</p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" class="p-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Basic Information -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+                    
+                    <!-- Title -->
+                    <div class="mb-4">
+                        <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Template Title *
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.title.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Short Description -->
+                    <div class="mb-4">
+                        <label for="{{ form.short_description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Short Description *
+                        </label>
+                        {{ form.short_description }}
+                        {% if form.short_description.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.short_description.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Brief description for template listings</p>
+                    </div>
+                    
+                    <!-- Category -->
+                    <div class="mb-4">
+                        <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Category *
+                        </label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.category.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Difficulty -->
+                    <div class="mb-4">
+                        <label for="{{ form.difficulty.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Difficulty Level
+                        </label>
+                        {{ form.difficulty }}
+                        {% if form.difficulty.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.difficulty.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Version -->
+                    <div class="mb-4">
+                        <label for="{{ form.version.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Version
+                        </label>
+                        {{ form.version }}
+                        {% if form.version.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.version.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Files and Media -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Files and Media</h3>
+                    
+                    <!-- Template File -->
+                    <div class="mb-4">
+                        <label for="{{ form.template_file.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Template File *
+                        </label>
+                        {{ form.template_file }}
+                        {% if form.template_file.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.template_file.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.template_file.help_text }}</p>
+                    </div>
+                    
+                    <!-- Preview Image -->
+                    <div class="mb-4">
+                        <label for="{{ form.preview_image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Preview Image
+                        </label>
+                        {{ form.preview_image }}
+                        {% if form.preview_image.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.preview_image.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.preview_image.help_text }}</p>
+                    </div>
+                    
+                    <!-- Demo URL -->
+                    <div class="mb-4">
+                        <label for="{{ form.demo_url.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Demo URL
+                        </label>
+                        {{ form.demo_url }}
+                        {% if form.demo_url.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.demo_url.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.demo_url.help_text }}</p>
+                    </div>
+                    
+                    <!-- Pricing -->
+                    <div class="mb-4">
+                        <div class="flex items-center mb-2">
+                            {{ form.is_free }}
+                            <label for="{{ form.is_free.id_for_label }}" class="ml-2 text-sm font-medium text-gray-700">
+                                This is a free template
+                            </label>
+                        </div>
+                        
+                        <div id="price-field" class="mt-2">
+                            <label for="{{ form.price.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Price (USD)
+                            </label>
+                            {{ form.price }}
+                            {% if form.price.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {{ form.price.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Detailed Description</h3>
+                <div class="mb-4">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Description *
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.description.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Provide detailed information about your template, including features, usage instructions, and requirements</p>
+                </div>
+            </div>
+            
+            <!-- Tags -->
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Tags</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Select relevant tags
+                    </label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                        {% for choice in form.tags %}
+                            <div class="flex items-center">
+                                {{ choice.tag }}
+                                <label for="{{ choice.id_for_label }}" class="ml-2 text-sm text-gray-700">
+                                    {{ choice.choice_label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.tags.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.tags.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.tags.help_text }}</p>
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <div class="flex items-center justify-between">
+                    <a href="{% url 'templates:template_list' %}" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-md font-medium hover:bg-gray-400 transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit" class="bg-primary-600 text-white px-6 py-2 rounded-md font-medium hover:bg-primary-700 transition-colors">
+                        Upload Template
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Toggle price field based on is_free checkbox
+document.addEventListener('DOMContentLoaded', function() {
+    const isFreeCheckbox = document.getElementById('{{ form.is_free.id_for_label }}');
+    const priceField = document.getElementById('price-field');
+    
+    function togglePriceField() {
+        if (isFreeCheckbox.checked) {
+            priceField.style.display = 'none';
+        } else {
+            priceField.style.display = 'block';
+        }
+    }
+    
+    isFreeCheckbox.addEventListener('change', togglePriceField);
+    togglePriceField(); // Initial state
+});
+</script>
+{% endblock %}

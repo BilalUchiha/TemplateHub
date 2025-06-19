@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} Templates - TemplateHub{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Category Header -->
+    <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+        <div class="text-center">
+            {% if category.icon %}
+                <i class="{{ category.icon }} text-6xl text-primary-600 mb-4"></i>
+            {% else %}
+                <i class="fas fa-folder text-6xl text-primary-600 mb-4"></i>
+            {% endif %}
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ category.name }}</h1>
+            {% if category.description %}
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">{{ category.description }}</p>
+            {% endif %}
+            <div class="mt-6">
+                <span class="bg-primary-100 text-primary-800 text-lg font-medium px-4 py-2 rounded-full">
+                    {{ page_obj.paginator.count }} template{{ page_obj.paginator.count|pluralize }}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'templates:home' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">
+                    <i class="fas fa-home mr-2"></i>Home
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                    <a href="{% url 'templates:template_list' %}" class="text-sm font-medium text-gray-700 hover:text-primary-600">Templates</a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                    <span class="text-sm font-medium text-gray-500">{{ category.name }}</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+    
+    <!-- Results Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">{{ category.name }} Templates</h2>
+            {% if page_obj.paginator.count %}
+                <p class="text-gray-600 mt-1">
+                    Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} templates
+                </p>
+            {% endif %}
+        </div>
+        
+        {% if user.is_authenticated %}
+            <a href="{% url 'templates:template_upload' %}" class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>Upload Template
+            </a>
+        {% endif %}
+    </div>
+    
+    <!-- Template Grid -->
+    {% if templates %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            {% for template in templates %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <!-- Preview Image -->
+                    {% if template.preview_image %}
+                        <img src="{{ template.preview_image.url }}" alt="{{ template.title }}" class="w-full h-48 object-cover">
+                    {% else %}
+                        <div class="w-full h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                            <i class="fas fa-code text-primary-600 text-4xl"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Template Info -->
+                    <div class="p-4">
+                        <!-- Rating -->
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="bg-{{ template.difficulty }}-100 text-{{ template.difficulty }}-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                {{ template.get_difficulty_display }}
+                            </span>
+                            <div class="flex items-center text-yellow-400">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= template.average_rating %}
+                                        <i class="fas fa-star text-xs"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-xs"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="text-gray-600 text-xs ml-1">({{ template.review_count }})</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Title -->
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{{ template.title }}</h3>
+                        
+                        <!-- Description -->
+                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ template.short_description }}</p>
+                        
+                        <!-- Author and Stats -->
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                            <div class="flex items-center">
+                                <img class="h-6 w-6 rounded-full mr-2" 
+                                     src="https://ui-avatars.com/api/?name={{ template.author.username }}&background=3b82f6&color=fff&size=24" 
+                                     alt="{{ template.author.username }}">
+                                <span>{{ template.author.username }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-download mr-1"></i>
+                                {{ template.download_count }}
+                            </div>
+                        </div>
+                        
+                        <!-- Tags -->
+                        {% if template.tags.all %}
+                            <div class="flex flex-wrap gap-1 mb-3">
+                                {% for tag in template.tags.all|slice:":3" %}
+                                    <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{{ tag.name }}</span>
+                                {% endfor %}
+                                {% if template.tags.count > 3 %}
+                                    <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">+{{ template.tags.count|add:"-3" }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Price and Action -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                {% if template.is_free %}
+                                    <span class="text-green-600 font-semibold">Free</span>
+                                {% else %}
+                                    <span class="text-gray-900 font-semibold">${{ template.price }}</span>
+                                {% endif %}
+                            </div>
+                            <a href="{{ template.get_absolute_url }}" 
+                               class="bg-primary-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-primary-700 transition-colors">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div class="flex items-center justify-center">
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" 
+                           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="relative inline-flex items-center px-4 py-2 border border-primary-500 bg-primary-50 text-sm font-medium text-primary-600">
+                                {{ num }}
+                            </span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}" 
+                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                {{ num }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" 
+                           class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-12">
+            <i class="fas fa-search text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No templates found in {{ category.name }}</h3>
+            <p class="text-gray-600 mb-6">Be the first to contribute a template to this category!</p>
+            {% if user.is_authenticated %}
+                <a href="{% url 'templates:template_upload' %}" class="bg-primary-600 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-700 transition-colors">
+                    Upload First Template
+                </a>
+            {% else %}
+                <a href="{% url 'users:register' %}" class="bg-primary-600 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-700 transition-colors">
+                    Join to Upload Templates
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+    
+    <!-- Related Categories -->
+    <div class="mt-12 bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Explore Other Categories</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {% for other_category in related_categories %}
+                <a href="{{ other_category.get_absolute_url }}" 
+                   class="group bg-gray-50 rounded-lg p-4 text-center hover:bg-primary-50 hover:border-primary-200 border border-transparent transition-all">
+                    {% if other_category.icon %}
+                        <i class="{{ other_category.icon }} text-2xl text-gray-600 group-hover:text-primary-600 mb-2"></i>
+                    {% else %}
+                        <i class="fas fa-folder text-2xl text-gray-600 group-hover:text-primary-600 mb-2"></i>
+                    {% endif %}
+                    <h4 class="font-medium text-gray-900 group-hover:text-primary-600 text-sm">{{ other_category.name }}</h4>
+                    <p class="text-xs text-gray-500 mt-1">{{ other_category.templates.count }} templates</p>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}

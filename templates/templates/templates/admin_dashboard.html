@@ -1,0 +1,441 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - TemplateHub{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">
+            <i class="fas fa-tachometer-alt mr-3 text-primary-600"></i>Admin Dashboard
+        </h1>
+        <p class="text-gray-600">Manage templates, review submissions, and monitor platform activity</p>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+            <div class="text-2xl font-bold text-blue-600">{{ stats.total }}</div>
+            <div class="text-gray-600">Total Templates</div>
+            <a href="?status=" class="text-xs text-blue-600 hover:text-blue-800 mt-1 block">View All</a>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+            <div class="text-2xl font-bold text-green-600">{{ stats.published }}</div>
+            <div class="text-gray-600">Published</div>
+            <a href="?status=published" class="text-xs text-green-600 hover:text-green-800 mt-1 block">View Published</a>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+            <div class="text-2xl font-bold text-yellow-600">{{ stats.pending }}</div>
+            <div class="text-gray-600">Pending Review</div>
+            <a href="?status=pending" class="text-xs text-yellow-600 hover:text-yellow-800 mt-1 block">Review Pending</a>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+            <div class="text-2xl font-bold text-gray-600">{{ stats.draft }}</div>
+            <div class="text-gray-600">Drafts</div>
+            <a href="?status=draft" class="text-xs text-gray-600 hover:text-gray-800 mt-1 block">View Drafts</a>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+            <div class="text-2xl font-bold text-red-600">{{ stats.rejected }}</div>
+            <div class="text-gray-600">Rejected</div>
+            <a href="?status=rejected" class="text-xs text-red-600 hover:text-red-800 mt-1 block">View Rejected</a>
+        </div>
+    </div>
+    
+    <!-- Filters and Search -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <form method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Search -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Search templates, authors..."
+                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                </div>
+                
+                <!-- Status Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <select name="status" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        <option value="">All Statuses</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Category Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <select name="category" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.slug }}" {% if category_filter == category.slug %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Difficulty Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
+                    <select name="difficulty" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        <option value="">All Levels</option>
+                        {% for value, label in difficulty_choices %}
+                            <option value="{{ value }}" {% if difficulty_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Sort -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                    <select name="sort" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Newest First</option>
+                        <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Oldest First</option>
+                        <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Title A-Z</option>
+                        <option value="-title" {% if sort_by == '-title' %}selected{% endif %}>Title Z-A</option>
+                        <option value="status" {% if sort_by == 'status' %}selected{% endif %}>Status</option>
+                        <option value="-download_count" {% if sort_by == '-download_count' %}selected{% endif %}>Most Downloaded</option>
+                        <option value="author__username" {% if sort_by == 'author__username' %}selected{% endif %}>Author A-Z</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-search mr-2"></i>Apply Filters
+                </button>
+                <a href="{% url 'templates:admin_dashboard' %}" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition-colors">
+                    <i class="fas fa-times mr-2"></i>Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Bulk Actions -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <form id="bulk-form" method="POST" action="{% url 'templates:bulk_template_action' %}">
+            {% csrf_token %}
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="select-all" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                        <span class="ml-2 text-sm font-medium text-gray-700">Select All</span>
+                    </label>
+                    <span id="selected-count" class="text-sm text-gray-600">0 selected</span>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <select name="action" id="bulk-action" class="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        <option value="">Choose Action</option>
+                        <option value="publish">Publish</option>
+                        <option value="pending">Set to Pending</option>
+                        <option value="reject">Reject</option>
+                        <option value="delete" class="text-red-600">Delete</option>
+                    </select>
+                    <button type="submit" id="bulk-submit" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition-colors disabled:bg-gray-300" disabled>
+                        Apply Action
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Results -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">
+                    Templates 
+                    {% if page_obj.paginator.count %}
+                        ({{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }})
+                    {% endif %}
+                </h3>
+            </div>
+        </div>
+        
+        {% if templates %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <input type="checkbox" id="header-select-all" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Template</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Downloads</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for template in templates %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" name="template_ids" value="{{ template.pk }}" class="template-checkbox rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        {% if template.preview_image %}
+                                            <img class="h-12 w-12 rounded-lg object-cover mr-4" src="{{ template.preview_image.url }}" alt="{{ template.title }}">
+                                        {% else %}
+                                            <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center mr-4">
+                                                <i class="fas fa-code text-primary-600"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">{{ template.title }}</div>
+                                            <div class="text-sm text-gray-500">{{ template.short_description|truncatechars:50 }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img class="h-8 w-8 rounded-full mr-2" src="https://ui-avatars.com/api/?name={{ template.author.username }}&background=3b82f6&color=fff&size=32" alt="{{ template.author.username }}">
+                                        <span class="text-sm text-gray-900">{{ template.author.username }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-0.5 rounded">{{ template.category.name }}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <select onchange="updateStatus({{ template.pk }}, this.value)" class="status-select text-sm rounded border-gray-300 focus:border-primary-500 focus:ring-primary-500
+                                        {% if template.status == 'published' %}text-green-600{% elif template.status == 'pending' %}text-yellow-600{% elif template.status == 'rejected' %}text-red-600{% else %}text-gray-600{% endif %}">
+                                        {% for value, label in status_choices %}
+                                            <option value="{{ value }}" {% if template.status == value %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ template.download_count }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ template.created_at|date:"M d, Y" }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <a href="{{ template.get_absolute_url }}" class="text-primary-600 hover:text-primary-900" title="View Template">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'admin:templates_template_change' template.pk %}" class="text-blue-600 hover:text-blue-900" title="Edit in Admin">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button onclick="deleteTemplate({{ template.pk }}, '{{ template.title|escapejs }}')" class="text-red-600 hover:text-red-900" title="Delete Template">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-search text-gray-400 text-6xl mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No templates found</h3>
+                <p class="text-gray-600">Try adjusting your filters or search terms</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <div class="flex items-center justify-center mt-6">
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" 
+                       class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-primary-500 bg-primary-50 text-sm font-medium text-primary-600">
+                            {{ num }}
+                        </span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}" 
+                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            {{ num }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" 
+                       class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Select all functionality
+document.getElementById('select-all').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.template-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+    updateSelectedCount();
+});
+
+document.getElementById('header-select-all').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.template-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+    updateSelectedCount();
+});
+
+// Update selected count
+function updateSelectedCount() {
+    const selectedCheckboxes = document.querySelectorAll('.template-checkbox:checked');
+    const count = selectedCheckboxes.length;
+    document.getElementById('selected-count').textContent = `${count} selected`;
+
+    // Enable/disable bulk action button
+    const bulkSubmit = document.getElementById('bulk-submit');
+    const bulkAction = document.getElementById('bulk-action');
+    bulkSubmit.disabled = count === 0 || bulkAction.value === '';
+}
+
+// Listen for checkbox changes
+document.querySelectorAll('.template-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', updateSelectedCount);
+});
+
+// Listen for bulk action changes
+document.getElementById('bulk-action').addEventListener('change', updateSelectedCount);
+
+// Bulk form submission with confirmation
+document.getElementById('bulk-form').addEventListener('submit', function(e) {
+    const selectedCheckboxes = document.querySelectorAll('.template-checkbox:checked');
+    const action = document.getElementById('bulk-action').value;
+
+    if (selectedCheckboxes.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one template');
+        return;
+    }
+
+    if (!action) {
+        e.preventDefault();
+        alert('Please select an action');
+        return;
+    }
+
+    let message = `Are you sure you want to ${action} ${selectedCheckboxes.length} template(s)?`;
+    if (action === 'delete') {
+        message = `Are you sure you want to DELETE ${selectedCheckboxes.length} template(s)? This action cannot be undone.`;
+    }
+
+    if (!confirm(message)) {
+        e.preventDefault();
+    }
+});
+
+// Update template status via AJAX
+function updateStatus(templateId, newStatus) {
+    fetch(`/admin-dashboard/template/${templateId}/update-status/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `status=${newStatus}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the select element color based on status
+            const select = event.target;
+            select.className = select.className.replace(/text-\w+-600/g, '');
+            if (newStatus === 'published') {
+                select.classList.add('text-green-600');
+            } else if (newStatus === 'pending') {
+                select.classList.add('text-yellow-600');
+            } else if (newStatus === 'rejected') {
+                select.classList.add('text-red-600');
+            } else {
+                select.classList.add('text-gray-600');
+            }
+
+            // Show success message
+            showNotification(data.message, 'success');
+        } else {
+            showNotification(data.message, 'error');
+            // Revert the select to previous value
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred', 'error');
+        location.reload();
+    });
+}
+
+// Delete template with confirmation
+function deleteTemplate(templateId, templateTitle) {
+    if (confirm(`Are you sure you want to delete "${templateTitle}"? This action cannot be undone.`)) {
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "templates:bulk_template_action" %}';
+
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const templateInput = document.createElement('input');
+        templateInput.type = 'hidden';
+        templateInput.name = 'template_ids';
+        templateInput.value = templateId;
+
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'delete';
+
+        form.appendChild(csrfInput);
+        form.appendChild(templateInput);
+        form.appendChild(actionInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Show notification
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${
+        type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
+    }`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+            ${message}
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Auto-submit form when filters change (optional)
+document.querySelectorAll('select[name="status"], select[name="category"], select[name="difficulty"], select[name="sort"]').forEach(select => {
+    select.addEventListener('change', function() {
+        // Uncomment the line below to auto-submit on filter change
+        // this.form.submit();
+    });
+});
+</script>
+{% endblock %}
