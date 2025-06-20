@@ -1,0 +1,64 @@
+# TemplateHub - Production Requirements
+# Includes all minimal requirements plus production-ready tools
+
+# Include minimal requirements
+-r requirements-minimal.txt
+
+# Production WSGI Server
+gunicorn==21.2.0
+
+# Static File Serving
+whitenoise==6.6.0
+
+# Database Drivers (choose one based on your database)
+psycopg2-binary==2.9.9  # PostgreSQL
+# mysqlclient==2.2.4    # MySQL (uncomment if using MySQL)
+
+# Environment Management
+python-decouple==3.8
+
+# Caching
+redis==5.0.1
+django-redis==5.4.0
+
+# Security
+django-cors-headers==4.3.1
+
+# Monitoring and Error Tracking
+sentry-sdk==1.38.0
+
+# Email Backend
+# django-ses==3.5.0     # AWS SES (uncomment if using AWS SES)
+
+# Cloud Storage (if using cloud storage)
+# django-storages==1.14.2
+# boto3==1.34.0
+
+# Performance Monitoring
+# django-silk==5.0.4    # Uncomment for performance profiling
+
+# Task Queue (if using background tasks)
+# celery==5.3.4
+
+# API Rate Limiting
+django-ratelimit==4.1.0
+
+# Production Deployment Instructions:
+# 1. Set up production server (Ubuntu/CentOS)
+# 2. Install Python 3.11+
+# 3. Create virtual environment: python -m venv venv
+# 4. Activate virtual environment: source venv/bin/activate
+# 5. Install requirements: pip install -r requirements-prod.txt
+# 6. Set environment variables (DATABASE_URL, SECRET_KEY, etc.)
+# 7. Run migrations: python manage.py migrate
+# 8. Collect static files: python manage.py collectstatic
+# 9. Create superuser: python manage.py createsuperuser
+# 10. Start with Gunicorn: gunicorn templatehub.wsgi:application
+
+# Environment Variables for Production:
+# DEBUG=False
+# SECRET_KEY=your-secret-key
+# DATABASE_URL=postgres://user:pass@localhost/dbname
+# ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+# STATIC_ROOT=/path/to/static/files
+# MEDIA_ROOT=/path/to/media/files

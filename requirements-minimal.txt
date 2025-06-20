@@ -1,0 +1,28 @@
+# TemplateHub - Minimal Requirements
+# Essential dependencies only for basic functionality
+
+# Core Django Framework
+Django==5.0.1
+
+# Django Forms and UI Enhancement
+django-crispy-forms==2.1
+crispy-bootstrap4==2023.1
+
+# Image Processing (for template previews and user avatars)
+Pillow==11.0.0
+
+# Core Dependencies (automatically installed with Django)
+asgiref==3.8.1
+sqlparse==0.5.3
+tzdata==2024.2
+typing_extensions==4.13.2
+
+# Installation Instructions:
+# 1. Create virtual environment: python -m venv venv
+# 2. Activate virtual environment: 
+#    - Windows: venv\Scripts\activate
+#    - macOS/Linux: source venv/bin/activate
+# 3. Install requirements: pip install -r requirements-minimal.txt
+# 4. Run migrations: python manage.py migrate
+# 5. Create superuser: python manage.py createsuperuser
+# 6. Run server: python manage.py runserver

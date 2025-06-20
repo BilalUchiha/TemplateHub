@@ -1,0 +1,127 @@
+# TemplateHub - Django Web Application Requirements
+# Core Django Framework and Dependencies
+
+# Django Framework
+Django==5.0.1
+djangorestframework==3.15.2
+
+# Django Forms and UI
+django-crispy-forms==2.1
+crispy-bootstrap4==2023.1
+
+# Image Processing
+Pillow==11.0.0
+
+# Database (SQLite is included with Django, but you can add PostgreSQL/MySQL if needed)
+# psycopg2-binary==2.9.9  # Uncomment for PostgreSQL
+# mysqlclient==2.2.4      # Uncomment for MySQL
+
+# Core Python Dependencies
+asgiref==3.8.1
+sqlparse==0.5.3
+tzdata==2024.2
+
+# Development and Debugging (Optional - for development only)
+# django-debug-toolbar==4.2.0  # Uncomment for development debugging
+
+# Production Dependencies (Optional - for deployment)
+# gunicorn==21.2.0             # WSGI HTTP Server for production
+# whitenoise==6.6.0            # Static file serving for production
+# django-environ==0.11.2       # Environment variable management
+
+# Security and Authentication (Optional - for enhanced security)
+# django-allauth==0.57.0       # Advanced authentication
+# django-cors-headers==4.3.1   # CORS handling for API
+
+# File Upload and Storage (Optional - for cloud storage)
+# django-storages==1.14.2      # Cloud storage backends
+# boto3==1.34.0                # AWS S3 integration
+
+# Email Backend (Optional - for email functionality)
+# django-ses==3.5.0            # AWS SES email backend
+
+# Caching (Optional - for performance)
+# redis==5.0.1                 # Redis caching
+# django-redis==5.4.0          # Django Redis integration
+
+# API Documentation (Optional - for API docs)
+# drf-spectacular==0.27.0      # OpenAPI 3 schema generation
+
+# Testing (Optional - for testing)
+# pytest==7.4.3               # Testing framework
+# pytest-django==4.7.0        # Django integration for pytest
+# factory-boy==3.3.0          # Test data generation
+
+# Code Quality (Optional - for development)
+# flake8==6.1.0               # Code linting
+# black==23.11.0              # Code formatting
+# isort==5.12.0               # Import sorting
+
+# Monitoring and Logging (Optional - for production)
+# sentry-sdk==1.38.0          # Error tracking
+# django-extensions==3.2.3    # Useful Django extensions
+
+# Performance Monitoring (Optional)
+# django-silk==5.0.4          # Performance profiling
+
+# Search (Optional - for advanced search functionality)
+# django-haystack==3.2.1      # Search framework
+# elasticsearch==8.11.0       # Elasticsearch integration
+
+# Task Queue (Optional - for background tasks)
+# celery==5.3.4               # Distributed task queue
+# redis==5.0.1                # Message broker for Celery
+
+# Internationalization (Optional - for multi-language support)
+# django-modeltranslation==0.18.11  # Model translation
+# django-rosetta==0.9.9             # Translation interface
+
+# Content Management (Optional - for rich content)
+# django-ckeditor==6.7.0      # Rich text editor
+# django-taggit==4.0.0        # Tagging system
+
+# Analytics (Optional - for tracking)
+# django-analytical==3.1.0    # Analytics integration
+
+# Social Features (Optional - for social login)
+# python-social-auth==0.3.6   # Social authentication
+
+# Backup and Migration (Optional - for data management)
+# django-dbbackup==4.0.2      # Database backup
+
+# API Rate Limiting (Optional - for API protection)
+# django-ratelimit==4.1.0     # Rate limiting
+
+# Admin Interface Enhancement (Optional - for better admin)
+# django-admin-interface==0.26.1  # Enhanced admin interface
+# django-grappelli==3.0.8         # Admin skin
+
+# File Processing (Optional - for file handling)
+# python-magic==0.4.27        # File type detection
+# PyPDF2==3.0.1              # PDF processing
+
+# Utilities
+typing_extensions==4.13.2
+
+# Note: This requirements.txt includes core dependencies and optional packages.
+# Uncomment the optional packages you need for your specific deployment.
+# For a minimal installation, only the core Django packages are required.
+
+# Installation Instructions:
+# 1. Create virtual environment: python -m venv venv
+# 2. Activate virtual environment: 
+#    - Windows: venv\Scripts\activate
+#    - macOS/Linux: source venv/bin/activate
+# 3. Install requirements: pip install -r requirements.txt
+# 4. Run migrations: python manage.py migrate
+# 5. Create superuser: python manage.py createsuperuser
+# 6. Run server: python manage.py runserver
+
+# For production deployment, also consider:
+# - Setting DEBUG=False in settings.py
+# - Configuring proper database (PostgreSQL/MySQL)
+# - Setting up static file serving
+# - Configuring email backend
+# - Setting up proper logging
+# - Implementing caching
+# - Setting up monitoring and error tracking
